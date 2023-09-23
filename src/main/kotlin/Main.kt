@@ -1,7 +1,7 @@
 package ru.levgrekov.polynomial
 
 import ru.levgrekov.polynomial.math.Polynomial
-import kotlin.random.Random
+import ru.levgrekov.polynomial.ru.levgrekov.polynomial.math.LagrangePolynomial
 
 //var t: Polynomial? = null
 fun main() {
@@ -13,11 +13,15 @@ fun main() {
     val p2 = Polynomial(8.0, -6.0, -5.0, 3.0)
     val p22 = Polynomial(mapOf( 1 to -6.0, 0 to 8.0, 2 to -5.0,3 to 3.0))
     val p3 = Polynomial(-4.0, 1.0, 3.0)
+    val z = Polynomial(0.0);
+        println(p2)
+        println(p3)
+        println(p22/p3)
+        println(p2)
+        println(p2 + z)
 
-    println(p2)
-    println(p3)
-    println(p22/p3)
-    println(p2/p3)
+    val lp = LagrangePolynomial(mapOf(-1.0 to 1.0, 1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0))
+    println("LP: $lp")
 
 //
 //    val rnd = Random.nextBoolean()

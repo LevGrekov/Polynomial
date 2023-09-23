@@ -1,47 +1,58 @@
 package ru.levgrekov.polynomial.math
 
-import java.lang.StringBuilder
+import ru.levgrekov.polynomial.ru.levgrekov.polynomial.math.eq
+import ru.levgrekov.polynomial.ru.levgrekov.polynomial.math.neq
 import kotlin.math.abs
-import kotlin.math.max
 import kotlin.math.pow
-import kotlin.math.ulp
 
-class Polynomial(coefficients: Map<Int, Double>) {
-    private val _coeffs: MutableMap<Int, Double>;
-    private var isZero: Boolean = false;
+open class Polynomial(coeffs: Map<Int, Double>) {
+    protected val _coeffs: MutableMap<Int, Double> = mutableMapOf()
+
     init {
-        _coeffs = coefficients.filter { (degree, value) -> value != 0.0 && degree >= 0}.toMutableMap();
-        if (_coeffs.isEmpty()){
-            _coeffs[0]=0.0;
-            isZero = true;
+        setFiltered(coeffs)
+    }
+
+    protected fun setFiltered(rawCoeffs: Map<Int, Double>){
+        _coeffs.clear()
+        _coeffs.putAll(rawCoeffs.filter { (k,v) -> v neq 0.0 && k >= 0 }.toMutableMap())
+        if(_coeffs.isEmpty()){
+            _coeffs[0] = 0.0
         }
     }
 
-    val size : Int = _coeffs.size;
-    val highDegree : Int = _coeffs.keys.max();
-    val minorDegree : Int = _coeffs.keys.min();
+    //Свойства
+    val coeffs: Map<Int,Double>
+        get() = _coeffs.toMap()
 
+    val size : Int
+        get() = _coeffs.size
+    val highDegree : Int
+        get() =  _coeffs.keys.max()?: 0
+    val minorDegree : Int
+        get() = _coeffs.keys.min()?: 0
 
 
     constructor(vararg coeffs: Double) : this (coeffs.mapIndexed { index, value -> index to value }.toMap())
     constructor(coeffs: MutableList<Double>) : this (coeffs.mapIndexed { index, value -> index to value }.toMap())
     constructor(other: Polynomial) : this(HashMap(other._coeffs))
 
+    // Действия со Скаляром
     operator fun times(scalar: Double) = Polynomial(_coeffs.map { (k, v) -> k to scalar * v }.toMap())
-
-
+    operator fun timesAssign(scalar: Double){
+        _coeffs.keys.forEach { _coeffs[it] = _coeffs[it]!! * scalar}
+        setFiltered(_coeffs);
+    }
     operator fun div(scalar: Double) =
         Polynomial(_coeffs.map { (k, v) -> if (scalar eq 0.0) throw ArithmeticException("Division by zero") else k to 1.0 / scalar * v }
             .toMap())
 
+    // Действия с другим полиномом
     operator fun plus(other: Polynomial) = Polynomial(_coeffs.toMutableMap().also {
         other._coeffs.forEach { (k2, v2) -> it[k2] = v2 + (it[k2] ?: 0.0) }
     })
-
     operator fun minus(other: Polynomial) = Polynomial(_coeffs.toMutableMap().also {
         other._coeffs.forEach { (k2, v2) -> it[k2] = -v2 + (it[k2] ?: 0.0) }
     })
-
     operator fun times(other: Polynomial) = Polynomial(mutableMapOf<Int, Double>().also {
         _coeffs.forEach { (k1, v1) ->
             other._coeffs.forEach { (k2, v2) ->
@@ -49,14 +60,56 @@ class Polynomial(coefficients: Map<Int, Double>) {
             }
         }
     })
+    operator fun timesAssign(other: Polynomial){
+        val c = mutableMapOf<Int,Double>()
+        _coeffs.forEach { (k1, v1) ->
+            other._coeffs.forEach { (k2, v2) ->
+                c[k1 + k2] = v1 * v2 + (c[k1 + k2] ?: 0.0)
+            }
+        }
+        _coeffs.apply {
+            clear()
+            setFiltered(c)
+            putAll(c)
+        }
+    }
+    private fun divide(divisor: Polynomial): Pair<Polynomial,Polynomial> {
+
+        if(divisor.coeffs[0] == 0.0) throw  ArithmeticException("forbidden to divide by zero");
+
+        val divisorList = (0..divisor.highDegree).map {divisor._coeffs.getOrDefault(it,0.0)}.toMutableList()
+        val remainder = (0..this.highDegree).map {_coeffs.getOrDefault(it,0.0)}.toMutableList()
+
+        val quotient = MutableList(remainder.size - divisor.size + 1){0.0}
+
+        for(i in quotient.indices){
+            val coeff : Double = remainder[remainder.size - i - 1] / divisorList.last();
+            quotient[quotient.size - i - 1] = coeff;
+
+            for(j in divisorList.indices){
+                remainder[remainder.size - i - j - 1] -= coeff * divisorList[divisorList.size - j - 1]
+            }
+        }
+
+        return Pair(Polynomial(quotient),Polynomial(remainder))
+    }
+    operator fun rem(other:Polynomial) = divide(other).second;
+    operator fun div(other: Polynomial) = divide(other).first;
+
+    // Как функция
 
     operator fun invoke(scalar: Double) = _coeffs.entries.sumOf { (k, v) -> v * scalar.pow(k) }
-
     operator fun get(degree: Int) = _coeffs[degree] ?: 0.0
 
-    override fun toString() = toString("x")
+    //Переопределение Any
 
-    private fun toString(arg: String) = buildString {
+    override operator fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Polynomial) return false
+        return this._coeffs == other._coeffs
+    }
+    override fun hashCode(): Int = _coeffs.keys.hashCode() * 17 + _coeffs.values.hashCode() * 31
+    override fun toString() = buildString {
 
         _coeffs.toSortedMap(reverseOrder()).forEach { (degree, value) ->
             this.append(when {
@@ -82,19 +135,5 @@ class Polynomial(coefficients: Map<Int, Double>) {
         }
     }
 
-    override operator fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is Polynomial) return false
-        return this._coeffs == other._coeffs
-    }
-    override fun hashCode(): Int = _coeffs.keys.hashCode() * 17 + _coeffs.values.hashCode() * 31
-
 
 }
-fun Double.eq(other: Double, eps: Double) = abs(this - other) < eps
-
-infix fun Double.eq(other: Double) = abs(this - other) < max(ulp, other.ulp) * 10.0
-
-fun Double.neq(other: Double, eps: Double) = !this.eq(other, eps)
-
-infix fun Double.neq(other: Double) = !this.eq(other)
