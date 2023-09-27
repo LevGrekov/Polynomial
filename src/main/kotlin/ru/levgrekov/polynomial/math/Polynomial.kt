@@ -40,7 +40,7 @@ open class Polynomial(coeffs: Map<Int, Double>) {
     operator fun times(scalar: Double) = Polynomial(_coeffs.map { (k, v) -> k to scalar * v }.toMap())
     operator fun timesAssign(scalar: Double){
         _coeffs.keys.forEach { _coeffs[it] = _coeffs[it]!! * scalar}
-        setFiltered(_coeffs);
+        setFiltered(coeffs)
     }
     operator fun div(scalar: Double) =
         Polynomial(_coeffs.map { (k, v) -> if (scalar eq 0.0) throw ArithmeticException("Division by zero") else k to 1.0 / scalar * v }
@@ -50,6 +50,10 @@ open class Polynomial(coeffs: Map<Int, Double>) {
     operator fun plus(other: Polynomial) = Polynomial(_coeffs.toMutableMap().also {
         other._coeffs.forEach { (k2, v2) -> it[k2] = v2 + (it[k2] ?: 0.0) }
     })
+    operator fun plusAssign(other: Polynomial) {
+        other._coeffs.forEach { (k2, v2) -> _coeffs[k2] = v2 + (_coeffs[k2] ?: 0.0) }
+        setFiltered(coeffs)
+    }
     operator fun minus(other: Polynomial) = Polynomial(_coeffs.toMutableMap().also {
         other._coeffs.forEach { (k2, v2) -> it[k2] = -v2 + (it[k2] ?: 0.0) }
     })
