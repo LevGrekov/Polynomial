@@ -51,7 +51,13 @@ fun main() {
     a.addPoint(4.0,16.0)
     println(a)
 
-    comparePolynomials(200)
+    val test = LagrangePolynomial(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
+    println(test)
+
+    val b = NewtonPolynomial2(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
+    println(b)
+
+    comparePolynomials(300)
 
 }
 
@@ -74,6 +80,5 @@ fun comparePolynomials(n: Int) {
     println("Для $n точек:")
     println("Время Построения  LagrangePolynomial: $lagrangeTime миллисекунд")
     println("Время Построения  NewtonPolynomial: $newtonTime миллисекунд")
-
 
 }

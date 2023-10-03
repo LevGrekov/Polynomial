@@ -113,30 +113,45 @@ open class Polynomial(coeffs: Map<Int, Double>) {
         return this._coeffs == other._coeffs
     }
     override fun hashCode(): Int = _coeffs.keys.hashCode() * 17 + _coeffs.values.hashCode() * 31
-    override fun toString() = buildString {
+//    override fun toString() = buildString {
+//
+//        _coeffs.toSortedMap(reverseOrder()).forEach { (degree, value) ->
+//            this.append(when {
+//                value < 0 -> " - "
+//                value > 0 && degree != highDegree -> " + "
+//                else -> ""
+//            })
+//
+//            this.append(
+//                when (value) {
+//                    1.0 -> ""
+//                    else -> "${abs(value)}"
+//                }
+//            )
+//
+//            this.append(
+//                when (degree) {
+//                    0 -> ""
+//                    1 -> "x"
+//                    else -> "x^$degree"
+//                }
+//            )
+//        }
+//    }
 
-        _coeffs.toSortedMap(reverseOrder()).forEach { (degree, value) ->
-            this.append(when {
-                value < 0 -> " - "
-                value > 0 && degree != highDegree -> " + "
-                else -> ""
-            })
+    override fun toString() = toString("x")
 
-            this.append(
-                when (value) {
-                    1.0 -> ""
-                    else -> "${abs(value)}"
-                }
-            )
+    fun toString(arg:String) = buildString {
 
-            this.append(
-                when (degree) {
-                    0 -> ""
-                    1 -> "x"
-                    else -> "x^$degree"
-                }
-            )
-        }
+        _coeffs.toSortedMap(reverseOrder()).forEach { (k, v) ->
+            append(if (v > 0.0 || v.eq(0.0, 1e-12)) if (_coeffs.keys.max() == k) "" else "+" else "-")
+            if (abs(v) neq 1.0 || k == 0 ) append(abs(v))
+            if(k > 0) {
+                append(arg)
+                if (k > 1) append("^$k")
+            }
+        } //sort by key
+
     }
 
 
