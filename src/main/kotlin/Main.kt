@@ -42,22 +42,26 @@ fun main() {
 //        b = 7
 //    }
 
-    val a1 = LagrangePolynomial(mapOf(-2.0 to 4.0,0.0 to 0.0, 2.0 to 4.0, 3.0 to 9.0))
+    val a1 = LagrangePolynomial(mapOf(-2.0 to 4.0,0.0 to 0.0, 2.0 to 4.0, 3.5 to 9.5))
     println(a1)
 
-    val a = NewtonPolynomial2(mapOf(-2.0 to 4.0,0.0 to 0.0, 2.0 to 4.0))
-    a.addPoint(3.0,9.0)
-    println(a)
-    a.addPoint(4.0,16.0)
-    println(a)
+    val a2 = NewtonPolynomial2(mapOf(-2.0 to 4.0,0.0 to 0.0, 2.0 to 4.0))
+    a2.addPoint(3.5,9.5)
+    println(a2)
 
-    val test = LagrangePolynomial(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
-    println(test)
-
-    val b = NewtonPolynomial2(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
-    println(b)
-
-    comparePolynomials(300)
+//    val a = NewtonPolynomial2(mapOf(-2.0 to 4.0,0.0 to 0.0, 2.0 to 4.0))
+//    a.addPoint(3.0,9.0)
+//    println(a)
+//    a.addPoint(4.0,16.0)
+//    println(a)
+//
+//    val test = LagrangePolynomial(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
+//    println(test)
+//
+//    val b = NewtonPolynomial2(mapOf(1.0 to 1.0, 2.0 to 4.0, 3.0 to 9.0,4.0 to 16.0))
+//    println(b)
+//
+//    comparePolynomials(300)
 
 }
 
