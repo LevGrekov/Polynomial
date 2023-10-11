@@ -7,18 +7,16 @@ class NewtonPolynomial2(points: Map<Double,Double>) : Polynomial() {
     private val n: Int
         get() = _points.size
 
-    private val _points: MutableList<Pair<Double,Double>>
+    private val _points: MutableList<Pair<Double,Double>> = mutableListOf()
 
-    private var lastFundPoly: Polynomial;
+    private val lastFundPoly: Polynomial = Polynomial(1.0);
     init {
-        _points = mutableListOf()
-        lastFundPoly = Polynomial(1.0)
         _coeffs[0] = 0.0
         this.addPoints(points.toList().toMutableList())
     }
     private fun fundPoly(j: Int): Polynomial {
         if (j != 1) {
-            lastFundPoly = lastFundPoly * Polynomial(-_points[j-2].first, 1.0)
+            lastFundPoly *= Polynomial(-_points[j-2].first, 1.0)
         }
         return lastFundPoly
     }
